@@ -1,0 +1,1 @@
+python3 "C:\Users\Roman\Desktop\Projekt\Bot\main.py"
