@@ -89,6 +89,7 @@ def main():
         print("Reddy")
         print("-------------")
 
+
     @tree.command(name="henlo", guild=None)
     async def henlo(interaction):
         """Responds with fren to command /henlo"""
@@ -192,6 +193,7 @@ def main():
             await interaction.response.send_message('Searching. . .')
 
             if '-' in verse:
+
                 for line in bible:
                     line_list = line.split()
                     location = line_list[0]
@@ -202,45 +204,54 @@ def main():
 
                     if search_verse[0].lower() == location_split[0].lower() and int(search_verse[1]) <= current_verse \
                             <= verse:
+                        
                         if output == '':
                             output += line
+
+                        elif output != '' and verse == current_verse:
+                            output += location_split[1] + line.lstrip(location)
+                            break
+
                         else:
                             output += location_split[1] + line.lstrip(location)
+                        
                         found = True
 
                 if found and len(output) < 2000:
                     await interaction.edit_original_response(content=output)
 
                 elif len(output) > 2000:
-                    await interaction.followup.send('Cannot send message, too long')
+                    await interaction.edit_original_response(content='Cannot send message, too long')
                 else:
-                    await interaction.followup.send('Verse not found (maybe you typed it wrong)')
+                    await interaction.edit_original_response(content='Verse not found (maybe you typed it wrong)')
 
 
             else:
+
                 for line in bible:
                     line_list = line.split()
                     location = line_list[0].lower()
-
                     if location == verse:
                         await interaction.edit_original_response(content=line)
                         found = True
+                        break
+                    
 
                 if not found:
-                    await interaction.followup.send('Verse not found (maybe you typed it wrong)')
+                    await interaction.edit_original_response(content='Verse not found (maybe you typed it wrong)')
 
             bible.close()
 
         except TypeError as err:
-            await interaction.followup.send('Error: Maybe you typed something wrong.')
+            await interaction.edit_original_response(content='Error: Maybe you typed something wrong.')
             print(err)
 
         except IndexError as err:
-            await interaction.followup.send('Error: Maybe you typed something wrong.')
+            await interaction.edit_original_response(content='Error: Maybe you typed something wrong.')
             print(err)
 
         except:
-            await interaction.followup.send('Error: Maybe you typed something wrong.')
+            await interaction.edit_original_response(content='Error: Maybe you typed something wrong.')
 
     @tree.command(name="randomverse", guild=None)
     async def random_verse(interaction):
