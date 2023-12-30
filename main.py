@@ -153,7 +153,8 @@ def main():
     @tree.command(name="showarchive", guild=None)
     async def show_arc(interaction):
         """Sends message with archive file"""
-        await interaction.response.send_message(file=discord.File('archive.txt'))
+        await interaction.response.defer()
+        await interaction.edit_original_response(content=None, attachments = [discord.File('archive.txt')])
 
     @tree.command(name="erasearchive", guild=None)
     async def erase_archive(interaction):
@@ -319,7 +320,6 @@ def main():
     atexit.register(exit_handler)
 
     client.run(TOKEN)
-
 
 if __name__ == '__main__':
     main()
