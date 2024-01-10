@@ -176,7 +176,44 @@ def main():
                                                 " messages in the channel\n/showarchive - sends archive text file\n"
                                                 "/erasearchive - erases archive contents\n"
                                                 "/verse - responds with inputted Bible verse or verses\n/randomverse - "
-                                                "responds with a random Bible verse")
+                                                "responds with a random Bible verse\n/randommessage - responds with random message from chat history")
+        
+    async def get_randommsg(para):
+        """archives each message in a channel"""
+        # needs to get random message (maybe use the iterator para.channel.history to select random message)
+        await para.response.defer()
+        max_message = 0
+        mes_counter = 0
+        
+        async for message in para.channel.history(limit=None, oldest_first=True):
+            max_message += 1
+        
+        rand_message = random.randint(0, max_message)
+        async for message in para.channel.history(limit=None, oldest_first=True):
+            if rand_message == mes_counter:
+                try:
+                    print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
+                        f'{str(message.author)}:{str(message.content)}')
+                    mes = f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:{str(message.author)}:{str(message.content)}'
+
+                except UnicodeEncodeError:
+                    print('Unicode encoding error')
+                except ValueError:
+                    print('Error converting message to string')
+                except:
+                    print('Error')
+                finally:
+                    break
+            mes_counter += 1
+
+        await para.edit_original_response(content=mes)
+
+        print('Random message sent!')
+
+    @tree.command(name="randommessage", guild=None)
+    async def show_randommsg(interaction):
+        """Responds with random message from chat history"""
+        await get_randommsg(interaction)
 
     @tree.command(name="verse", guild=None)
     async def verse(interaction: discord.Interaction, verse: str):
