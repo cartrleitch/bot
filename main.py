@@ -4,6 +4,7 @@ import atexit
 from discord import app_commands
 from dotenv import load_dotenv
 import random
+from rand_date import random_datetime
 
 def main():
     # defines intents
@@ -180,34 +181,29 @@ def main():
         
     async def get_randommsg(para):
         """archives each message in a channel"""
-        # needs to get random message (maybe use the iterator para.channel.history to select random message)
-        # get date of first message, get data of last message, get random date between them then get one message around this date
         await para.response.defer()
-        max_message = 0
-        mes_counter = 0
-        
-        async for message in para.channel.history(limit=None, oldest_first=True):
-            max_message += 1
-        print(f"Max message: {max_message}")
-        rand_message = random.randint(0, max_message)
-        print(f"Random message: {rand_message}")
 
-        async for message in para.channel.history(limit=None, oldest_first=True):
-            if rand_message == mes_counter:
-                try:
-                    print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
-                        f'{str(message.author)}:{str(message.content)}')
-                    mes = f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:{str(message.author)}:{str(message.content)}'
+        async for message in para.channel.history(limit=1, oldest_first=True):
+            start_date = message.created_at
+            break
+        async for message in para.channel.history(limit=1, oldest_first=False):
+            end_date = message.created_at
+            break
+            
+        async for message in para.channel.history(limit=1, oldest_first=True, around=random_datetime(start_date, end_date)):
+            try:
+                print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
+                    f'{str(message.author)}:{str(message.content)}')
+                mes = f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}\n{str(message.author)}\n{str(message.content)}'
 
-                except UnicodeEncodeError:
-                    print('Unicode encoding error')
-                except ValueError:
-                    print('Error converting message to string')
-                except:
-                    print('Error')
-                finally:
-                    break
-            mes_counter += 1
+            except UnicodeEncodeError:
+                print('Unicode encoding error')
+            except ValueError:
+                print('Error converting message to string')
+            except:
+                print('Error')
+            finally:
+                break
 
         await para.edit_original_response(content=mes)
 
