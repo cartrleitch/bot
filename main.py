@@ -190,7 +190,6 @@ def main():
             end_date = message.created_at
             break
         rand_datetime = random_datetime(start_date, end_date)    
-        print(rand_datetime)
 
         async for message in para.channel.history(limit=25, oldest_first=True, around=rand_datetime):
             mes = "Error!"
