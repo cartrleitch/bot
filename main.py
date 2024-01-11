@@ -189,20 +189,21 @@ def main():
         async for message in para.channel.history(limit=1, oldest_first=False):
             end_date = message.created_at
             break
-            
-        async for message in para.channel.history(limit=1, oldest_first=True, around=random_datetime(start_date, end_date)):
-            try:
-                print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
-                    f'{str(message.author)}:{str(message.content)}')
-                mes = f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}\n{str(message.author)}\n{str(message.content)}'
+        rand_datetime = random_datetime(start_date, end_date)    
+        print(rand_datetime)
 
-            except UnicodeEncodeError:
-                print('Unicode encoding error')
-            except ValueError:
-                print('Error converting message to string')
-            except:
-                print('Error')
-            finally:
+        async for message in para.channel.history(limit=25, oldest_first=True, around=rand_datetime):
+            mes = "Error!"
+            if message.author.bot:
+                print(message.author)
+            if not message.author.bot:
+                try:
+                    mes = f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}\n{str(message.author)}\n{str(message.content)}'
+                except:
+                    print('Error')
+
+                print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
+                            f'{str(message.author)}:{str(message.content)}')
                 break
 
         await para.edit_original_response(content=mes)
@@ -307,7 +308,6 @@ def main():
 
         async for message in para.channel.history(limit=None, oldest_first=True):
             try:
-
                 print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
                       f'{str(message.author)}:{str(message.content)}')
 
