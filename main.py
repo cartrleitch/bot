@@ -179,19 +179,24 @@ def main():
                                                 "/verse - responds with inputted Bible verse or verses\n/randomverse - "
                                                 "responds with a random Bible verse\n/randommessage - responds with random message from chat history")
         
-    async def get_randommsg(para):
-        """archives each message in a channel"""
+    async def get_randommsg(para, channel_name):
+        """sends random message"""
         await para.response.defer()
+        try:
+            channel_id = discord.utils.get(para.guild.channels, name=channel_name).id
+            selected_channel = client.get_channel(channel_id)
+        except:
+            selected_channel = para.channel
 
-        async for message in para.channel.history(limit=1, oldest_first=True):
+        async for message in selected_channel.history(limit=1, oldest_first=True):
             start_date = message.created_at
             break
-        async for message in para.channel.history(limit=1, oldest_first=False):
+        async for message in selected_channel.history(limit=1, oldest_first=False):
             end_date = message.created_at
             break
         rand_datetime = random_datetime(start_date, end_date)    
 
-        async for message in para.channel.history(limit=25, oldest_first=True, around=rand_datetime):
+        async for message in selected_channel.history(limit=25, oldest_first=True, around=rand_datetime):
             mes = "Error!"
             if message.author.bot:
                 print(message.author)
@@ -210,9 +215,9 @@ def main():
         print('Random message sent!')
 
     @tree.command(name="randommessage", guild=None)
-    async def show_randommsg(interaction):
+    async def show_randommsg(interaction: discord.Interaction, channel_name: str):
         """Responds with random message from chat history"""
-        await get_randommsg(interaction)
+        await get_randommsg(interaction, channel_name)
 
     @tree.command(name="verse", guild=None)
     async def verse(interaction: discord.Interaction, verse: str):
