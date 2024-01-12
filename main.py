@@ -216,7 +216,6 @@ def main():
 
     async def random_message_game(para, channel_name):
         """sends random message"""
-        # add question telling user what to do with content message, make it send message of correct or wrong, 
         # choose from a few options of users (maybe buttons?)
         await para.response.defer()
         try:
@@ -252,7 +251,7 @@ def main():
         await para.edit_original_response(content=mes)
 
         def check(mess):
-            return True
+            return mess.author == para.user and mess.channel == para.channel
 
         guess = await para.client.wait_for('message', check=check)
         user_guess = str(guess.content).split("#")[0].lower()
