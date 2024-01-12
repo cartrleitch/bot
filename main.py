@@ -216,6 +216,8 @@ def main():
 
     async def random_message_game(para, channel_name):
         """sends random message"""
+        # add question telling user what to do with content message, make it send message of correct or wrong, 
+        # choose from a few options of users (maybe buttons?)
         await para.response.defer()
         try:
             channel_id = discord.utils.get(para.guild.channels, name=channel_name).id
