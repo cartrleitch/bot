@@ -239,7 +239,7 @@ def main():
                 print(message.author)
             if not message.author.bot:
                 try:
-                    mes = f'{str(message.attachments)}\n{str(message.content)}'
+                    mes = f'Guess the author! Type their full discord name (not server nickname)!\n{str(message.attachments)}\n\"{str(message.content)}\"'
                     msg_author = message.author
                 except:
                     print('Error')
@@ -250,21 +250,20 @@ def main():
                 break
 
         await para.edit_original_response(content=mes)
-        print("Hi")
 
         def check(mess):
             return True
 
         guess = await para.client.wait_for('message', check=check)
-        user_guess = str(guess.content)
-        answer = str(msg_author)
+        user_guess = str(guess.content).split("#")[0].lower()
+        answer = str(msg_author).split("#")[0].lower()
 
         if user_guess == answer:
             print('Correct')
-            await selected_channel.send(content=f'You guessed correctly! It was {msg_author}')
+            await para.edit_original_response(content=f'{mes}\nYou guessed correctly! It was {str(msg_author).split("#")[0]}')
         else:
             print('Wrong')
-            await selected_channel.send(content=f'You guessed wrong! It was {msg_author}')
+            await para.edit_original_response(content=f'{mes}\nYou guessed wrong! It was {str(msg_author).split("#")[0]}')
 
     @tree.command(name="randommsg", guild=None)
     async def show_randommsg(interaction: discord.Interaction, channel_name: str):
