@@ -214,10 +214,65 @@ def main():
 
         print('Random message sent!')
 
-    @tree.command(name="randommessage", guild=None)
+    async def random_message_game(para, channel_name):
+        """sends random message"""
+        await para.response.defer()
+        try:
+            channel_id = discord.utils.get(para.guild.channels, name=channel_name).id
+            selected_channel = client.get_channel(channel_id)
+        except:
+            selected_channel = para.channel
+
+        async for message in selected_channel.history(limit=1, oldest_first=True):
+            start_date = message.created_at
+            break
+        async for message in selected_channel.history(limit=1, oldest_first=False):
+            end_date = message.created_at
+            break
+        rand_datetime = random_datetime(start_date, end_date)    
+
+        async for message in selected_channel.history(limit=25, oldest_first=True, around=rand_datetime):
+            mes = "Error!"
+            if message.author.bot:
+                print(message.author)
+            if not message.author.bot:
+                try:
+                    mes = f'{str(message.attachments)}\n{str(message.content)}'
+                    msg_author = message.author
+                except:
+                    print('Error')
+
+                print(f'{str(message.attachments)}:{str(message.created_at)}:{str(message.channel)}:'
+                            f'{str(message.author)}:{str(message.content)}')
+                print('Random message sent!')
+                break
+
+        await para.edit_original_response(content=mes)
+        print("Hi")
+
+        def check(mess):
+            return True
+
+        guess = await para.client.wait_for('message', check=check)
+        user_guess = str(guess.content)
+        answer = str(msg_author)
+
+        if user_guess == answer:
+            print('Correct')
+            await selected_channel.send(content=f'You guessed correctly! It was {msg_author}')
+        else:
+            print('Wrong')
+            await selected_channel.send(content=f'You guessed wrong! It was {msg_author}')
+
+    @tree.command(name="randommsg", guild=None)
     async def show_randommsg(interaction: discord.Interaction, channel_name: str):
         """Responds with random message from chat history"""
         await get_randommsg(interaction, channel_name)
+    
+    @tree.command(name="fungame", guild=None)
+    async def randomsg_game(interaction: discord.Interaction, channel_name: str):
+        """Random message game wow!"""
+        await random_message_game(interaction, channel_name)
 
     @tree.command(name="verse", guild=None)
     async def verse(interaction: discord.Interaction, verse: str):
