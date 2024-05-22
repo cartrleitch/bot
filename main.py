@@ -62,8 +62,22 @@ def main():
                 'Hebrews': 'Heb', 'James': 'Jas', '1 Peter': '1Pet', '2 Peter': '2Pet', '1 John': '1Jn', '2 John': '2Jn', '3 John': '3Jn', 'Jude': 'Jude', 
                 'Revelation': 'Rev'}
         
+        verse = verse.lower()
+        verse = verse.replace(" ", "")
+
+        if not verse[0].isdigit():
+            verse = verse[0].upper() + verse[1:]
+        elif verse[0].isdigit():
+            verse = verse[0] + verse[1].upper() + verse[2:]
+
+        for char in range(len(verse)):
+            if verse[char].isdigit():
+                if char == 0:
+                    verse = verse[char] + ' ' + verse[char+1:]
+                elif char > 0 and not verse[char-1].isdigit() and not verse[char-1] == ':' and not verse[char-1] == '-':
+                    verse = verse[:char] + ' ' + verse[char:]
         verse_split = verse.split()
-        
+
         if len(verse_split) > 1:
             if verse_split[0].isdigit():
                 book = f'{verse_split[0]} {verse_split[1]}'
