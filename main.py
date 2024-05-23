@@ -5,6 +5,7 @@ from discord import app_commands
 from dotenv import load_dotenv
 import random
 from rand_date import random_datetime
+import requests
 
 def main():
     # defines intents
@@ -289,69 +290,101 @@ def main():
         await random_message_game(interaction, channel_name)
 
     @tree.command(name="verse", guild=None)
-    async def verse(interaction: discord.Interaction, verse: str):
+    async def verse(interaction: discord.Interaction, verse: str, version:str = "KJV"):
         """Responds with entered verse"""
+
+        url = "https://api.esv.org/v3/passage/text/"
+
+        params = {
+                'q': verse,
+                'indent-poetry': False,
+                'include-headings': False,
+                'include-footnotes': False,
+                'include-verse-numbers': True,
+                'include-short-copyright': False,
+                'include-passage-references': True
+            }
+
+        headers = {
+                'Authorization': 'Token da90257ec00eada8ecd51aa981b8a26c75512525'
+            }      
         
         try:
-            bible = open('holybible.txt', 'r')
-            found = False
-            verse = adaptor(verse)
-            verse = verse.replace(" ", "")
-            verse = verse.lower()
-            verses_split = verse.split('-')
-            output = f''
-
             await interaction.response.send_message('Searching. . .')
+            version = version.upper()
 
-            if '-' in verse:
+            if version == "ESV":
+                response = requests.get(url, params=params, headers=headers)
+                response = response.json()
+                output = response['passages']
 
-                for line in bible:
-                    line_list = line.split()
-                    location = line_list[0]
-                    location_split = location.split(':')
-                    verse = int(verses_split[1])
-                    current_verse = int(location_split[1])
-                    search_verse = verses_split[0].split(':')
+                if output != [] and len(output[0]) < 2000:
+                    await interaction.edit_original_response(content=output[0])
 
-                    if search_verse[0].lower() == location_split[0].lower() and int(search_verse[1]) <= current_verse \
-                            <= verse:
-                        
-                        if output == '':
-                            output += line
-
-                        elif output != '' and verse == current_verse:
-                            output += location_split[1] + line.lstrip(location)
-                            break
-
-                        else:
-                            output += location_split[1] + line.lstrip(location)
-                        
-                        found = True
-
-                if found and len(output) < 2000:
-                    await interaction.edit_original_response(content=output)
-
-                elif len(output) > 2000:
+                elif output != [] and len(output[0]) > 2000:
                     await interaction.edit_original_response(content='Cannot send message, too long')
                 else:
                     await interaction.edit_original_response(content='Verse not found (maybe you typed it wrong)')
 
+            elif version == "KJV":
+                bible = open('holybible.txt', 'r')
 
-            else:
+                found = False
+                verse = adaptor(verse)
+                verse = verse.replace(" ", "")
+                verse = verse.lower()
+                verses_split = verse.split('-')
+                output = f''
 
-                for line in bible:
-                    line_list = line.split()
-                    location = line_list[0].lower()
-                    if location == verse:
-                        await interaction.edit_original_response(content=line)
-                        found = True
-                        break
-                    
+                if '-' in verse:
 
-                if not found:
-                    await interaction.edit_original_response(content='Verse not found (maybe you typed it wrong)')
+                    for line in bible:
+                        line_list = line.split()
+                        location = line_list[0]
+                        location_split = location.split(':')
+                        verse = int(verses_split[1])
+                        current_verse = int(location_split[1])
+                        search_verse = verses_split[0].split(':')
 
-            bible.close()
+                        if search_verse[0].lower() == location_split[0].lower() and int(search_verse[1]) <= current_verse \
+                                <= verse:
+                            
+                            if output == '':
+                                output += line
+
+                            elif output != '' and verse == current_verse:
+                                output += location_split[1] + line.lstrip(location)
+                                break
+
+                            else:
+                                output += location_split[1] + line.lstrip(location)
+                            
+                            found = True
+
+                    if found and len(output) < 2000:
+                        await interaction.edit_original_response(content=output)
+
+                    elif len(output) > 2000:
+                        await interaction.edit_original_response(content='Cannot send message, too long')
+                    else:
+                        await interaction.edit_original_response(content='Verse not found (maybe you typed it wrong)')
+
+
+                else:
+
+                    for line in bible:
+                        line_list = line.split()
+                        location = line_list[0].lower()
+                        if location == verse:
+                            await interaction.edit_original_response(content=line)
+                            found = True
+                            break
+                        
+
+                    if not found:
+                        await interaction.edit_original_response(content='Verse not found (maybe you typed it wrong)')
+
+                bible.close()
 
         except TypeError as err:
             await interaction.edit_original_response(content='Error: Maybe you typed something wrong.')
