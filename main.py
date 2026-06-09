@@ -97,7 +97,22 @@ def main():
             pass
 
         return verse
+    
+    def play_record(voice_client):
+        """plays record output"""
+        # audio = discord.FFmpegPCMAudio(
+        #     source="hw:2,0",
+        #     before_options="-f alsa -thread_queue_size 1024",
+        #     options="-ar 48000 -ac 2"
+        # )
+        # voice_client.play(audio)
+        print('Playing record output')
 
+
+    def stop_record():
+        """stops record output"""
+        print('Stopped record output')
+        
     @client.event
     async def on_ready():
         """prints message when login and connection is successful (bot is up and running)"""
@@ -105,6 +120,31 @@ def main():
         print("Reddy")
         print("-------------")
 
+    @tree.command(name="playrecord", guild=None)
+    async def playrecord(interaction):
+        """Plays record output"""
+        if interaction.user.voice is None:
+            await interaction.response.send_message("You are not connected to a voice channel.")
+            return
+        
+        vc =  interaction.user.guild.voice_client
+        
+        if vc is None:
+            vc = await interaction.user.voice.channel.connect()
+
+        play_record(vc)
+        await interaction.response.send_message("Playing record output")
+    
+    @tree.command(name="stoprecord", guild=None)
+    async def stoprecord(interaction):
+        """Stops record output"""
+        vc = interaction.guild.voice_client
+        
+        if vc:
+            vc.stop()
+            await vc.disconnect()
+        
+        await interaction.response.send_message("Stopped record output")
 
     @tree.command(name="henlo", guild=None)
     async def henlo(interaction):
